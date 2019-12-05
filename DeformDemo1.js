@@ -24,7 +24,7 @@ camera.lookAt(new THREE.Vector3(0,0,0));
 // var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 0.15 );
 
 const geometry = new THREE.BoxGeometry(20, 20, 20, 20, 20, 20); 
-const material = new THREE.MeshNormalMaterial({ color: 0x010101 }); 
+const material = new THREE.MeshNormalMaterial({ wireframe: true }); 
 const cube = new THREE.Mesh(geometry, material); 
 
 // Add pieces to the scene
@@ -40,9 +40,8 @@ scene.add(cube);
 // Animate the scene
 let twist = {
     amount: 0,
-    axis: 'x',
-};
-
+    axis: 'x'
+}
 animate();
 
 function animate() {
@@ -53,16 +52,18 @@ function animate() {
 
 function twistObj(geometry) {
     const quaternion = new THREE.Quaternion();
+    let axis = 'x';
+    let amount = 100;
     let position, direction = '';
-
+    console.log(twist);
     for (let i = 0; i < geometry.vertices.length; i++) {
-        twist.axis == 'x' ? (direction = new THREE.Vector3(1, 0, 0), position = geometry.vertices[i].x):
-        twist.axis == 'y' ? (direction = new THREE.Vector3(0, 1, 0), position = geometry.vertices[i].y):
+        twist.axis.valueOf() == 'x' ? (direction = new THREE.Vector3(1, 0, 0), position = geometry.vertices[i].x):
+        twist.axis.valueOf() == 'y' ? (direction = new THREE.Vector3(0, 1, 0), position = geometry.vertices[i].y):
         (direction = new THREE.Vector3(0, 0, 1), position = geometry.vertices[i].z);
         
         quaternion.setFromAxisAngle(
             direction, 
-            (Math.PI / 180) * (position / twist.amount)
+            (Math.PI / 180) * (position / twist.amount.valueOf())
         );
 
         geometry.vertices[i].applyQuaternion(quaternion);
