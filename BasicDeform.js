@@ -1,10 +1,14 @@
-import  * as THREE from "https://threejs.org/build/three.module.js";
+import * as THREE from "https://threejs.org/build/three.module.js";
 
-import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
+import {
+	GUI
+} from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
+import {
+	OrbitControls
+} from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
-var gui, scene, camera, renderer, orbit, light, mesh, bones, skeletonHelper;
+var gui, scene, camera, renderer, orbit, mesh, bones, skeletonHelper;
 
 var state = {
 	animateBones: false
@@ -18,8 +22,8 @@ function initScene() {
 	scene.background = new THREE.Color(0x888888);
 
 	camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
-	camera.position.z = 30;
-	camera.position.y = 30;
+	camera.position.z = 50;
+	camera.position.y = 20;
 
 	renderer = new THREE.WebGLRenderer({
 		antialias: true
@@ -32,13 +36,18 @@ function initScene() {
 	orbit = new OrbitControls(camera, renderer.domElement);
 	orbit.enableZoom = false;
 
-	light = new THREE.HemisphereLight(0xffffff);
-	
-	light.position.set(0, 200, 0);
-	
+	var light = new THREE.PointLight(0xffffff, 1, 500);
+
+	var light2 = new THREE.PointLight(0xffffff, 1, 500);
+
+
+
+	light.position.set(0, 0, -200);
+	light2.position.set(0, 0, 200);
 
 	scene.add(light);
-	
+	scene.add(light2);
+
 	window.addEventListener('resize', function () {
 
 		camera.aspect = window.innerWidth / window.innerHeight;
@@ -128,9 +137,9 @@ function createMesh(geometry, bones) {
 
 	mesh.bind(skeleton);
 
-	skeletonHelper = new THREE.SkeletonHelper(mesh);
-	skeletonHelper.material.linewidth = 2;
-	scene.add(skeletonHelper);
+	// skeletonHelper = new THREE.SkeletonHelper(mesh);
+	// skeletonHelper.material.linewidth = 2;
+	// scene.add(skeletonHelper);
 
 	return mesh;
 }
@@ -183,8 +192,8 @@ function setupDatGui() {
 
 function initBones() {
 
-	var segmentHeight = 8;
-	var segmentCount = 4;
+	var segmentHeight = 10;
+	var segmentCount = 5;
 	var height = segmentHeight * segmentCount;
 	var halfHeight = height * 0.5;
 
@@ -199,24 +208,25 @@ function initBones() {
 	var bones = createBones(sizing);
 	mesh = createMesh(geometry, bones);
 
-	//mesh.scale.multiplyScalar(1);
+	mesh.scale.multiplyScalar(1);
 	scene.add(mesh);
-
 }
+
+var degrees = 0;
 
 function render() {
 
 	requestAnimationFrame(render);
 
-	var time = Date.now() * 0.001;
+	degrees = degrees % 360;
+	degrees += 0.01;
 
 	//Wiggle the bones
 	if (state.animateBones) {
 
 		for (var i = 0; i < mesh.skeleton.bones.length; i++) {
-
-			mesh.skeleton.bones[i].rotation.z = Math.sin(time) * 2 / mesh.skeleton.bones.length;
-
+			mesh.skeleton.bones[i].rotation.z = Math.sin(degrees) * 8 / mesh.skeleton.bones.length;
+			mesh.skeleton.bones[i].rotation.y = Math.sin(degrees) * 2 / mesh.skeleton.bones.length;
 		}
 
 	}
