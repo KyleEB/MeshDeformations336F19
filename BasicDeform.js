@@ -1,20 +1,4 @@
-import {
-	Bone,
-	Color,
-	CylinderBufferGeometry,
-	DoubleSide,
-	Float32BufferAttribute,
-	MeshPhongMaterial,
-	PerspectiveCamera,
-	PointLight,
-	Scene,
-	SkinnedMesh,
-	Skeleton,
-	SkeletonHelper,
-	Vector3,
-	Uint16BufferAttribute,
-	WebGLRenderer
-} from "https://threejs.org/build/three.module.js";
+import  * as THREE from "https://threejs.org/build/three.module.js";
 
 import {
 	GUI
@@ -23,7 +7,7 @@ import {
 	OrbitControls
 } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
-var gui, scene, camera, renderer, orbit, lights, mesh, bones, skeletonHelper;
+var gui, scene, camera, renderer, orbit, light, mesh, bones, skeletonHelper;
 
 var state = {
 	animateBones: false
@@ -33,16 +17,17 @@ function initScene() {
 
 	gui = new GUI();
 
-	scene = new Scene();
-	scene.background = new Color(0x444444);
+	scene = new THREE.Scene();
+	scene.background = new THREE.Color(0x444444);
 
-	camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
+	camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
 	camera.position.z = 30;
 	camera.position.y = 30;
 
-	renderer = new WebGLRenderer({
+	renderer = new THREE.WebGLRenderer({
 		antialias: true
 	});
+
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	document.body.appendChild(renderer.domElement);
@@ -50,19 +35,14 @@ function initScene() {
 	orbit = new OrbitControls(camera, renderer.domElement);
 	orbit.enableZoom = false;
 
-	lights = [];
-	lights[0] = new PointLight(0xffffff, 1, 0);
-	lights[1] = new PointLight(0xffffff, 1, 0);
-	lights[2] = new PointLight(0xffffff, 1, 0);
+	light = new THREE.HemisphereLight(0xffffff, 0x000000, 0.5);
+	
 
-	lights[0].position.set(0, 200, 0);
-	lights[1].position.set(100, 200, 100);
-	lights[2].position.set(-100, -200, -100);
+	light.position.set(0, 200, 0);
+	
 
-	scene.add(lights[0]);
-	scene.add(lights[1]);
-	scene.add(lights[2]);
-
+	scene.add(light);
+	
 	window.addEventListener('resize', function () {
 
 		camera.aspect = window.innerWidth / window.innerHeight;
@@ -79,7 +59,7 @@ function initScene() {
 
 function createGeometry(sizing) {
 
-	var geometry = new CylinderBufferGeometry(
+	var geometry = new THREE.CylinderBufferGeometry(
 		5, // radiusTop
 		5, // radiusBottom
 		sizing.height, // height
@@ -90,7 +70,7 @@ function createGeometry(sizing) {
 
 	var position = geometry.attributes.position;
 
-	var vertex = new Vector3();
+	var vertex = new THREE.Vector3();
 
 	var skinIndices = [];
 	var skinWeights = [];
@@ -109,8 +89,8 @@ function createGeometry(sizing) {
 
 	}
 
-	geometry.setAttribute('skinIndex', new Uint16BufferAttribute(skinIndices, 4));
-	geometry.setAttribute('skinWeight', new Float32BufferAttribute(skinWeights, 4));
+	geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(skinIndices, 4));
+	geometry.setAttribute('skinWeight', new THREE.Float32BufferAttribute(skinWeights, 4));
 
 	return geometry;
 
@@ -120,13 +100,13 @@ function createBones(sizing) {
 
 	bones = [];
 
-	var prevBone = new Bone();
+	var prevBone = new THREE.Bone();
 	bones.push(prevBone);
 	prevBone.position.y = -sizing.halfHeight;
 
 	for (var i = 0; i < sizing.segmentCount; i++) {
 
-		var bone = new Bone();
+		var bone = new THREE.Bone();
 		bone.position.y = sizing.segmentHeight;
 		bones.push(bone);
 		prevBone.add(bone);
@@ -140,22 +120,22 @@ function createBones(sizing) {
 
 function createMesh(geometry, bones) {
 
-	var material = new MeshPhongMaterial({
+	var material = new THREE.MeshPhongMaterial({
 		skinning: true,
 		color: 0x156289,
 		emissive: 0x072534,
-		side: DoubleSide,
+		side: THREE.DoubleSide,
 		flatShading: true
 	});
 
-	var mesh = new SkinnedMesh(geometry, material);
-	var skeleton = new Skeleton(bones);
+	var mesh = new THREE.SkinnedMesh(geometry, material);
+	var skeleton = new THREE.Skeleton(bones);
 
 	mesh.add(bones[0]);
 
 	mesh.bind(skeleton);
 
-	skeletonHelper = new SkeletonHelper(mesh);
+	skeletonHelper = new THREE.SkeletonHelper(mesh);
 	skeletonHelper.material.linewidth = 2;
 	scene.add(skeletonHelper);
 
