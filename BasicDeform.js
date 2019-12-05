@@ -11,7 +11,8 @@ import {
 var gui, scene, camera, renderer, orbit, mesh, bones, skeletonHelper;
 
 var state = {
-	animateBones: false
+	animateBones: false,
+	rotationFactor: 1,
 };
 
 function initScene() {
@@ -72,21 +73,21 @@ function createGeometry(sizing) {
 	// 	true // openEnded
 	// );
 
-	var geometry = new THREE.BoxBufferGeometry(
-		5, // width
-		sizing.height, // height
-		5, //depth
-		sizing.height, // width segments
-		sizing.segmentCount * 3, // height segments
-		sizing.segmentCount * 3, // depth segments
+	// var geometry = new THREE.BoxBufferGeometry(
+	// 	sizing.width, // width
+	// 	sizing.height, // height
+	// 	sizing.depth, //depth
+	// 	sizing.segmentCount, // width segments
+	// 	sizing.segmentCount, // height segments
+	// 	sizing.segmentCount, // depth segments
+	// );
+
+	var geometry = new THREE.SphereBufferGeometry(
+		sizing.radius, // radius
+		sizing.width, // width segments
+	 	sizing.height, // height segments
 	);
 
-	// BoxBufferGeometry(width : Float, 
-	// 		height : Float,
-	// 	 depth : Float, 
-	// 	 widthSegments : Integer, 
-	// 	 heightSegments : Integer, 
-	// 	 depthSegments : Integer)
 
 	var position = geometry.attributes.position;
 
@@ -162,13 +163,18 @@ function createMesh(geometry, bones) {
 
 function setupDatGui() {
 
-	var folder = gui.addFolder("General Options");
+	var folder = gui.addFolder("S-Mesh Animate Controls");
 
-	folder.add(state, "animateBones");
+	folder.add(state, "animateBones");//adds animateBones property from state controller
 	folder.__controllers[0].name("Animate Bones");
 
-	folder.add(mesh, "pose");
-	folder.__controllers[1].name(".pose()");
+	folder.add(state, "rotationFactor", 1, 10);
+	folder.__controllers[1].name("Rotate by Factor");
+
+	folder.add(mesh, "pose"); //adds pose function from skinned mesh
+	folder.__controllers[2].name("Reset S-Mesh");
+
+	folder = gui.addFolder("Bone Controls");
 
 	var bones = mesh.skeleton.bones;
 
@@ -176,48 +182,63 @@ function setupDatGui() {
 
 		var bone = bones[i];
 
-		folder = gui.addFolder("Bone " + i);
+		var subfolder = folder.addFolder("Bone " + i);
 
-		folder.add(bone.position, 'x', -10 + bone.position.x, 10 + bone.position.x);
-		folder.add(bone.position, 'y', -10 + bone.position.y, 10 + bone.position.y);
-		folder.add(bone.position, 'z', -10 + bone.position.z, 10 + bone.position.z);
 
-		folder.add(bone.rotation, 'x', -Math.PI * 0.5, Math.PI * 0.5);
-		folder.add(bone.rotation, 'y', -Math.PI * 0.5, Math.PI * 0.5);
-		folder.add(bone.rotation, 'z', -Math.PI * 0.5, Math.PI * 0.5);
 
-		folder.add(bone.scale, 'x', 0, 2);
-		folder.add(bone.scale, 'y', 0, 2);
-		folder.add(bone.scale, 'z', 0, 2);
+		subfolder.add(bone.position, 'x', -10 + bone.position.x, 10 + bone.position.x);
+		subfolder.add(bone.position, 'y', -10 + bone.position.y, 10 + bone.position.y);
+		subfolder.add(bone.position, 'z', -10 + bone.position.z, 10 + bone.position.z);
 
-		folder.__controllers[0].name("position.x");
-		folder.__controllers[1].name("position.y");
-		folder.__controllers[2].name("position.z");
+		subfolder.add(bone.rotation, 'x', -Math.PI * 0.5, Math.PI * 0.5);
+		subfolder.add(bone.rotation, 'y', -Math.PI * 0.5, Math.PI * 0.5);
+		subfolder.add(bone.rotation, 'z', -Math.PI * 0.5, Math.PI * 0.5);
 
-		folder.__controllers[3].name("rotation.x");
-		folder.__controllers[4].name("rotation.y");
-		folder.__controllers[5].name("rotation.z");
+		subfolder.add(bone.scale, 'x', 0, 2);
+		subfolder.add(bone.scale, 'y', 0, 2);
+		subfolder.add(bone.scale, 'z', 0, 2);
 
-		folder.__controllers[6].name("scale.x");
-		folder.__controllers[7].name("scale.y");
-		folder.__controllers[8].name("scale.z");
+		subfolder.__controllers[0].name("position.x");
+		subfolder.__controllers[1].name("position.y");
+		subfolder.__controllers[2].name("position.z");
+
+		subfolder.__controllers[3].name("rotation.x");
+		subfolder.__controllers[4].name("rotation.y");
+		subfolder.__controllers[5].name("rotation.z");
+
+		subfolder.__controllers[6].name("scale.x");
+		subfolder.__controllers[7].name("scale.y");
+		subfolder.__controllers[8].name("scale.z");
 
 	}
+
 
 }
 
 function initBones() {
 
 	var segmentHeight = 10;
+	var segmentWidth = 10;
+	var segmentDepth = 10;
+
 	var segmentCount = 5;
+
 	var height = segmentHeight * segmentCount;
+	var width  = segmentWidth * segmentCount;
+	var depth = segmentDepth * segmentCount; 
+
 	var halfHeight = height * 0.5;
+
+	var radius = 10;
 
 	var sizing = {
 		segmentHeight: segmentHeight,
 		segmentCount: segmentCount,
 		height: height,
-		halfHeight: halfHeight
+		width: width,
+		depth: depth,
+		halfHeight: halfHeight,
+		radius: radius,
 	};
 
 	var geometry = createGeometry(sizing);
@@ -241,7 +262,8 @@ function render() {
 	if (state.animateBones) {
 
 		for (var i = 0; i < mesh.skeleton.bones.length; i++) {
-			mesh.skeleton.bones[i].rotation.z = Math.sin(degrees) * 7 / mesh.skeleton.bones.length;
+			mesh.skeleton.bones[i].rotation.z = Math.sin(toRad(degrees)) * state.rotationFactor / mesh.skeleton.bones.length;
+			console.log(state.rotationFactor);
 			//mesh.skeleton.bones[i].rotation.y = Math.sin(degrees) * 2 / mesh.skeleton.bones.length;
 		}
 
@@ -249,6 +271,10 @@ function render() {
 
 	renderer.render(scene, camera);
 
+}
+
+function toRad(degrees){
+	return degrees * Math.PI / 180;
 }
 
 initScene();
