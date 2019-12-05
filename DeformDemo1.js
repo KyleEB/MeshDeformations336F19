@@ -24,7 +24,7 @@ camera.lookAt(new THREE.Vector3(0,0,0));
 // var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 0.15 );
 
 const geometry = new THREE.BoxGeometry(20, 20, 20, 20, 20, 20); 
-const material = new THREE.MeshNormalMaterial({ color: "0x010101" }); 
+const material = new THREE.MeshNormalMaterial({ color: 0x010101 }); 
 const cube = new THREE.Mesh(geometry, material); 
 
 // Add pieces to the scene
@@ -41,7 +41,8 @@ scene.add(cube);
 let twist = {
     amount: 0,
     axis: 'x',
-}
+};
+
 animate();
 
 function animate() {
@@ -133,5 +134,5 @@ function handleKeyPress(event)
     //     // camera.updateProjectionMatrix();
     //     break;
     }
-    // camera.updateProjectionMatrix();
+     camera.updateProjectionMatrix();
 }

@@ -63,14 +63,30 @@ function initScene() {
 
 function createGeometry(sizing) {
 
-	var geometry = new THREE.CylinderBufferGeometry(
-		5, // radiusTop
-		5, // radiusBottom
+	// var geometry = new THREE.CylinderBufferGeometry(
+	// 	5, // radiusTop
+	// 	5, // radiusBottom
+	// 	sizing.height, // height
+	// 	8, // radiusSegments
+	// 	sizing.segmentCount * 3, // heightSegments
+	// 	true // openEnded
+	// );
+
+	var geometry = new THREE.BoxBufferGeometry(
+		5, // width
 		sizing.height, // height
-		8, // radiusSegments
-		sizing.segmentCount * 3, // heightSegments
-		true // openEnded
+		5, //depth
+		sizing.height, // width segments
+		sizing.segmentCount * 3, // height segments
+		sizing.segmentCount * 3, // depth segments
 	);
+
+	// BoxBufferGeometry(width : Float, 
+	// 		height : Float,
+	// 	 depth : Float, 
+	// 	 widthSegments : Integer, 
+	// 	 heightSegments : Integer, 
+	// 	 depthSegments : Integer)
 
 	var position = geometry.attributes.position;
 
@@ -137,9 +153,9 @@ function createMesh(geometry, bones) {
 
 	mesh.bind(skeleton);
 
-	// skeletonHelper = new THREE.SkeletonHelper(mesh);
-	// skeletonHelper.material.linewidth = 2;
-	// scene.add(skeletonHelper);
+	skeletonHelper = new THREE.SkeletonHelper(mesh);
+	skeletonHelper.material.linewidth = 2;
+	scene.add(skeletonHelper);
 
 	return mesh;
 }
@@ -219,14 +235,14 @@ function render() {
 	requestAnimationFrame(render);
 
 	degrees = degrees % 360;
-	degrees += 0.01;
+	degrees += 1;
 
 	//Wiggle the bones
 	if (state.animateBones) {
 
 		for (var i = 0; i < mesh.skeleton.bones.length; i++) {
-			mesh.skeleton.bones[i].rotation.z = Math.sin(degrees) * 8 / mesh.skeleton.bones.length;
-			mesh.skeleton.bones[i].rotation.y = Math.sin(degrees) * 2 / mesh.skeleton.bones.length;
+			mesh.skeleton.bones[i].rotation.z = Math.sin(degrees) * 7 / mesh.skeleton.bones.length;
+			//mesh.skeleton.bones[i].rotation.y = Math.sin(degrees) * 2 / mesh.skeleton.bones.length;
 		}
 
 	}
