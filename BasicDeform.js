@@ -1,11 +1,8 @@
 import  * as THREE from "https://threejs.org/build/three.module.js";
 
-import {
-	GUI
-} from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
-import {
-	OrbitControls
-} from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
+import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
 var gui, scene, camera, renderer, orbit, light, mesh, bones, skeletonHelper;
 
@@ -18,7 +15,7 @@ function initScene() {
 	gui = new GUI();
 
 	scene = new THREE.Scene();
-	scene.background = new THREE.Color(0x444444);
+	scene.background = new THREE.Color(0x888888);
 
 	camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
 	camera.position.z = 30;
@@ -35,9 +32,8 @@ function initScene() {
 	orbit = new OrbitControls(camera, renderer.domElement);
 	orbit.enableZoom = false;
 
-	light = new THREE.HemisphereLight(0xffffff, 0x000000, 0.5);
+	light = new THREE.HemisphereLight(0xffffff);
 	
-
 	light.position.set(0, 200, 0);
 	
 
@@ -54,7 +50,6 @@ function initScene() {
 
 	initBones();
 	setupDatGui();
-
 }
 
 function createGeometry(sizing) {
@@ -103,7 +98,7 @@ function createBones(sizing) {
 	var prevBone = new THREE.Bone();
 	bones.push(prevBone);
 	prevBone.position.y = -sizing.halfHeight;
-
+	console.log(sizing.segmentCount);
 	for (var i = 0; i < sizing.segmentCount; i++) {
 
 		var bone = new THREE.Bone();
@@ -122,10 +117,8 @@ function createMesh(geometry, bones) {
 
 	var material = new THREE.MeshPhongMaterial({
 		skinning: true,
-		color: 0x156289,
-		emissive: 0x072534,
+		color: 0x00FF00,
 		side: THREE.DoubleSide,
-		flatShading: true
 	});
 
 	var mesh = new THREE.SkinnedMesh(geometry, material);
@@ -140,7 +133,6 @@ function createMesh(geometry, bones) {
 	scene.add(skeletonHelper);
 
 	return mesh;
-
 }
 
 function setupDatGui() {
@@ -207,7 +199,7 @@ function initBones() {
 	var bones = createBones(sizing);
 	mesh = createMesh(geometry, bones);
 
-	mesh.scale.multiplyScalar(1);
+	//mesh.scale.multiplyScalar(1);
 	scene.add(mesh);
 
 }
