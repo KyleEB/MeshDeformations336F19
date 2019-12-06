@@ -73,20 +73,20 @@ function createGeometry(sizing) {
 	// 	true // openEnded
 	// );
 
-	// var geometry = new THREE.BoxBufferGeometry(
-	// 	sizing.width, // width
-	// 	sizing.height, // height
-	// 	sizing.depth, //depth
-	// 	sizing.segmentCount, // width segments
-	// 	sizing.segmentCount, // height segments
-	// 	sizing.segmentCount, // depth segments
-	// );
-
-	var geometry = new THREE.SphereBufferGeometry(
-		sizing.radius, // radius
-		sizing.width, // width segments
-	 	sizing.height, // height segments
+	var geometry = new THREE.BoxBufferGeometry(
+		sizing.width, // width
+		sizing.height, // height
+		sizing.depth, //depth
+		sizing.segmentCount, // width segments
+		sizing.segmentCount, // height segments
+		sizing.segmentCount, // depth segments
 	);
+
+	// var geometry = new THREE.SphereBufferGeometry(
+	// 	sizing.radius, // radius
+	// 	sizing.width * 5, // width segments
+	//  	sizing.height * 5, // height segments
+	// );
 
 
 	var position = geometry.attributes.position;
@@ -117,7 +117,7 @@ function createGeometry(sizing) {
 
 }
 
-function createBones(sizing) {
+function createBonesPipe(sizing) {
 
 	bones = [];
 
@@ -126,13 +126,11 @@ function createBones(sizing) {
 	prevBone.position.y = -sizing.halfHeight;
 	console.log(sizing.segmentCount);
 	for (var i = 0; i < sizing.segmentCount; i++) {
-
 		var bone = new THREE.Bone();
 		bone.position.y = sizing.segmentHeight;
 		bones.push(bone);
 		prevBone.add(bone);
 		prevBone = bone;
-
 	}
 
 	return bones;
@@ -218,8 +216,8 @@ function setupDatGui() {
 function initBones() {
 
 	var segmentHeight = 10;
-	var segmentWidth = 10;
-	var segmentDepth = 10;
+	var segmentWidth = 1;
+	var segmentDepth = 1;
 
 	var segmentCount = 5;
 
@@ -242,7 +240,7 @@ function initBones() {
 	};
 
 	var geometry = createGeometry(sizing);
-	var bones = createBones(sizing);
+	var bones = createBonesPipe(sizing);
 	mesh = createMesh(geometry, bones);
 
 	mesh.scale.multiplyScalar(1);
