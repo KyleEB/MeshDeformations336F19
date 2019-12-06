@@ -157,7 +157,7 @@ function createMesh(geometry, bones) {
 
 function setupDatGui() {
 
-	var folder = gui.addFolder("S-Mesh Animate Controls");
+	var folder = gui.addFolder("S-Mesh Animation Controls");
 
 	folder.add(state, "animateBones");//adds animateBones property from state controller
 	folder.__controllers[0].name("Animate Bones");
