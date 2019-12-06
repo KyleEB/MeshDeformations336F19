@@ -85,7 +85,7 @@ function createGeometry(sizing) {
 	// var geometry = new THREE.SphereBufferGeometry(
 	// 	sizing.radius, // radius
 	// 	sizing.width * 5, // width segments
-	//  	sizing.height * 5, // height segments
+	//  sizing.height * 5, // height segments
 	// );
 
 
