@@ -51,8 +51,8 @@ function init() {
     light.position.z = 500;
     camera.add(light);
     scene.add(camera);
-    var light2 = new THREE.AmbientLight(0x111111);
-    scene.add(light2);
+    var ambientLight = new THREE.AmbientLight(0x111111);
+    scene.add(ambientLight);
 
 
     //var geometry = new THREE.SphereGeometry(50, 50, 50);
