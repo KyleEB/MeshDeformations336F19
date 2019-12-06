@@ -46,76 +46,32 @@ function init() {
     scene.add(camera);
     var light = new THREE.AmbientLight(0x111111);
     scene.add(light);
-    var geometry = new THREE.BoxGeometry(100, 100, 100);
+    
+
+    //var geometry = new THREE.SphereGeometry(50, 50, 50);
+    var geometry = new THREE.BoxGeometry(50,50,50);
+
     var material = new THREE.MeshLambertMaterial({
         color: 0xff0000,
-        morphTargets: true
     });
-    // construct 8 blend shapes
-    for (var i = 0; i < 8; i++) {
-        var vertices = [];
-        for (var v = 0; v < geometry.vertices.length; v++) {
-            vertices.push(geometry.vertices[v].clone());
-            if (v === i) {
-                vertices[vertices.length - 1].x *= 2;
-                vertices[vertices.length - 1].y *= 2;
-                vertices[vertices.length - 1].z *= 2;
-            }
-        }
-        geometry.morphTargets.push({
-            name: "target" + i,
-            vertices: vertices
-        });
-    }
-    geometry = new THREE.BufferGeometry().fromGeometry(geometry);
+
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
-    //
-    var params = {
-        influence1: 0,
-        influence2: 0,
-        influence3: 0,
-        influence4: 0,
-        influence5: 0,
-        influence6: 0,
-        influence7: 0,
-        influence8: 0
-    };
-    var gui = new GUI();
-    var folder = gui.addFolder('Morph Targets');
-    folder.add(params, 'influence1', 0, 1).step(0.01).onChange(function (value) {
-        mesh.morphTargetInfluences[0] = value;
-    });
-    folder.add(params, 'influence2', 0, 1).step(0.01).onChange(function (value) {
-        mesh.morphTargetInfluences[1] = value;
-    });
-    folder.add(params, 'influence3', 0, 1).step(0.01).onChange(function (value) {
-        mesh.morphTargetInfluences[2] = value;
-    });
-    folder.add(params, 'influence4', 0, 1).step(0.01).onChange(function (value) {
-        mesh.morphTargetInfluences[3] = value;
-    });
-    folder.add(params, 'influence5', 0, 1).step(0.01).onChange(function (value) {
-        mesh.morphTargetInfluences[4] = value;
-    });
-    folder.add(params, 'influence6', 0, 1).step(0.01).onChange(function (value) {
-        mesh.morphTargetInfluences[5] = value;
-    });
-    folder.add(params, 'influence7', 0, 1).step(0.01).onChange(function (value) {
-        mesh.morphTargetInfluences[6] = value;
-    });
-    folder.add(params, 'influence8', 0, 1).step(0.01).onChange(function (value) {
-        mesh.morphTargetInfluences[7] = value;
-    });
-    folder.open();
+
 }
+
+function updateVerts() { 
+    var vertexHeight = 10;
+    for (var i = 0; i < mesh.geometry.vertices.length; i+=2) 
+    { 
+      mesh.geometry.vertices[i].multiplyScalar(.99); 
+    }
+    mesh.geometry.verticesNeedUpdate = true;
+  };
+
 
 function animate() {
     requestAnimationFrame(animate);
-    render();
-}
-
-function render() {
-    mesh.rotation.y += 0.01;
+    updateVerts();
     renderer.render(scene, camera);
 }
