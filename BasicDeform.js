@@ -37,17 +37,13 @@ function initScene() {
 	orbit = new OrbitControls(camera, renderer.domElement);
 	orbit.enableZoom = false;
 
-	var light = new THREE.PointLight(0xffffff, 1, 500);
+	var light = new THREE.PointLight(0xffffff,1,100);
 
-	var light2 = new THREE.PointLight(0xffffff, 1, 500);
+	camera.add(light);
+	scene.add(camera);
 
-
-
-	light.position.set(0, 0, -200);
-	light2.position.set(0, 0, 200);
-
-	scene.add(light);
-	scene.add(light2);
+	light = new THREE.AmbientLight(0x111111);
+    scene.add(light);
 
 	window.addEventListener('resize', function () {
 
@@ -256,12 +252,11 @@ function render() {
 	degrees = degrees % 360;
 	degrees += 1;
 
-	//Wiggle the bones
+	//Do some weird animation
 	if (state.animateBones) {
 
-		for (var i = 0; i < mesh.skeleton.bones.length; i++) {
+		for (let i = 0; i < mesh.skeleton.bones.length; i++) {
 			mesh.skeleton.bones[i].rotation.z = Math.sin(toRad(degrees)) * state.rotationFactor / mesh.skeleton.bones.length;
-			console.log(state.rotationFactor);
 			//mesh.skeleton.bones[i].rotation.y = Math.sin(degrees) * 2 / mesh.skeleton.bones.length;
 		}
 
