@@ -8,14 +8,21 @@ import {
     OrbitControls
 } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
-var camera, scene, renderer, raycaster;
-var mesh = new THREE.Vector2();
+var camera, scene, renderer, gui;
+var mesh;
+
+var DeformControls = {
+    vertexLength: 1,
+    vertexMaxIndex: 0,
+    reset: function () {
+        location.reload();
+    }
+}
+
 init();
 animate();
 
-function OrbitControlsSetup(){
-
-    raycaster = new THREE.Raycaster();
+function OrbitControlsSetup() {
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -28,14 +35,14 @@ function OrbitControlsSetup(){
     document.body.appendChild(renderer.domElement);
 
     window.addEventListener('resize', () => {
-		camera.aspect = window.innerWidth / window.innerHeight;
-		camera.updateProjectionMatrix();
-		renderer.setSize(window.innerWidth, window.innerHeight);
-	}, false);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }, false);
 }
 
 function init() {
-    
+
     OrbitControlsSetup();
 
     scene = new THREE.Scene();
@@ -44,12 +51,12 @@ function init() {
     light.position.z = 500;
     camera.add(light);
     scene.add(camera);
-    var light = new THREE.AmbientLight(0x111111);
-    scene.add(light);
-    
+    var light2 = new THREE.AmbientLight(0x111111);
+    scene.add(light2);
+
 
     //var geometry = new THREE.SphereGeometry(50, 50, 50);
-    var geometry = new THREE.BoxGeometry(50,50,50);
+    var geometry = new THREE.BoxGeometry(50, 50, 50);
 
     var material = new THREE.MeshLambertMaterial({
         color: 0xff0000,
@@ -58,20 +65,29 @@ function init() {
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
+    GUISetup();
+
 }
 
-function updateVerts() { 
-    var vertexHeight = 10;
-    for (var i = 0; i < mesh.geometry.vertices.length; i+=2) 
-    { 
-      mesh.geometry.vertices[i].multiplyScalar(.99); 
+function GUISetup() {
+    gui = new GUI();
+    var folder = gui.addFolder("Deform Controls");
+    folder.add(DeformControls, 'vertexLength', 1, 100);
+    folder.add(DeformControls, 'vertexMaxIndex', 0,  mesh.geometry.vertices.length);
+    folder.add(DeformControls, 'reset');
+}
+
+function deformVertices() {
+    for (var i = 0; i < DeformControls.vertexMaxIndex; i++) {
+        if(typeof  mesh.geometry.vertices[i] != "undefined"){
+        mesh.geometry.vertices[i].setLength(DeformControls.vertexLength);
+        }
     }
     mesh.geometry.verticesNeedUpdate = true;
-  };
-
+};
 
 function animate() {
     requestAnimationFrame(animate);
-    updateVerts();
+    deformVertices();
     renderer.render(scene, camera);
 }
