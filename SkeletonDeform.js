@@ -13,6 +13,7 @@ var gui, scene, camera, renderer, orbit, mesh, bones, skeletonHelper;
 var state = {
 	animateBones: false,
 	rotationFactor: 1,
+	showBones: false,
 };
 
 function initScene() {
@@ -149,7 +150,7 @@ function createMesh(geometry, bones) {
 	mesh.bind(skeleton);
 
 	skeletonHelper = new THREE.SkeletonHelper(mesh);
-	skeletonHelper.material.linewidth = 2;
+	skeletonHelper.material.linewidth = 8;
 	scene.add(skeletonHelper);
 
 	return mesh;
@@ -169,6 +170,8 @@ function setupDatGui() {
 	folder.__controllers[2].name("Reset S-Mesh");
 
 	folder = gui.addFolder("Bone Controls");
+	folder.add(state, "showBones");
+	folder.__controllers[0].name("Show Bones");
 
 	var bones = mesh.skeleton.bones;
 
@@ -261,6 +264,9 @@ function render() {
 		}
 
 	}
+	
+	skeletonHelper.visible = state.showBones;
+	
 
 	renderer.render(scene, camera);
 
