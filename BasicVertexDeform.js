@@ -16,13 +16,13 @@ var DeformControls = {
     BoxLength: 1,
     BoxVertices : 0,
     SphereVertices : 0,
-    reset: function () {
-        location.reload();
-    }
-}
+    reset: () => location.reload(),
+};
 
+OrbitControlsSetup();
 init();
 animate();
+GUISetup();
 
 function OrbitControlsSetup() {
     renderer = new THREE.WebGLRenderer();
@@ -34,6 +34,7 @@ function OrbitControlsSetup() {
     camera.lookAt(0,0,0);
     
     var controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = false;
 
     document.body.appendChild(renderer.domElement);
 
@@ -45,8 +46,6 @@ function OrbitControlsSetup() {
 }
 
 function init() {
-
-    OrbitControlsSetup();
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x888888);
@@ -73,9 +72,6 @@ function init() {
 
     scene.add(Box);
     scene.add(Sphere);
-
-    GUISetup();
-
 }
 
 function GUISetup() {
