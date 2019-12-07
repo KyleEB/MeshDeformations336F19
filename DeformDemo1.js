@@ -23,9 +23,9 @@ camera.lookAt(new THREE.Vector3(0,0,0));
 
 // var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 0.15 );
 
-const geometry = new THREE.BoxGeometry(20, 20, 20, 20, 20, 20); 
+let geometry = new THREE.BoxGeometry(20, 20, 20, 20, 20, 20); 
 const material = new THREE.MeshNormalMaterial({ wireframe: true }); 
-const cube = new THREE.Mesh(geometry, material); 
+let cube = new THREE.Mesh(geometry, material); 
 
 // Add pieces to the scene
 scene.add(cube);
@@ -38,10 +38,9 @@ scene.add(cube);
 // }
 
 // Animate the scene
-let twist = {
-    amount: 0,
-    axis: 'x'
-}
+let twistAxis = 'x';
+let twistAmount = 100;
+
 animate();
 
 function animate() {
@@ -52,18 +51,16 @@ function animate() {
 
 function twistObj(geometry) {
     const quaternion = new THREE.Quaternion();
-    let axis = 'x';
-    let amount = 100;
     let position, direction = '';
-    console.log(twist);
+    // console.log(twist);
     for (let i = 0; i < geometry.vertices.length; i++) {
-        twist.axis.valueOf() == 'x' ? (direction = new THREE.Vector3(1, 0, 0), position = geometry.vertices[i].x):
-        twist.axis.valueOf() == 'y' ? (direction = new THREE.Vector3(0, 1, 0), position = geometry.vertices[i].y):
+        twistAxis == 'x' ? (direction = new THREE.Vector3(1, 0, 0), position = geometry.vertices[i].x):
+        twistAxis == 'y' ? (direction = new THREE.Vector3(0, 1, 0), position = geometry.vertices[i].y):
         (direction = new THREE.Vector3(0, 0, 1), position = geometry.vertices[i].z);
         
         quaternion.setFromAxisAngle(
             direction, 
-            (Math.PI / 180) * (position / twist.amount.valueOf())
+            (Math.PI / 180) * (position / twistAmount)
         );
 
         geometry.vertices[i].applyQuaternion(quaternion);
@@ -91,23 +88,24 @@ function handleKeyPress(event)
 
 	switch(ch) {
 	case 'x':
-        twist.axis = 'x'
+        twistAxis = 'x'
         break;
 	case 'y':
-		twist.axis = 'y'
+		twistAxis = 'y'
         break;
 	case 'z':
-        twist.axis = 'z'
+        twistAxis = 'z'
         break;
 	case 'a':
-        twist.amount -= 1
+        twistAmount > 1 ? twistAmount -= 1 : 1
+        console.log(twistAmount);
 		break;
 	case 'A':
-		twist.amount += 1
+		twistAmount < 50 ? twistAmount += 1 : 100
 		break;
-	// case 'f':
-	// 	camera.position.y -= 0.1
-	// 	break;
+	case 'f':
+		geometry = new THREE.TorusGeometry(20);
+		break;
     // case 'i':
     //     camera.rotation.x += 0.1
     //     break;
@@ -135,5 +133,8 @@ function handleKeyPress(event)
     //     // camera.updateProjectionMatrix();
     //     break;
     }
-    // camera.updateProjectionMatrix();
+    let mesh2 = new THREE.Mesh(material, geometry);
+    scene.remove(scene.children[0]);
+    scene.add(mesh2);
+    camera.updateProjectionMatrix();
 }
