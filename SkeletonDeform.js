@@ -7,7 +7,9 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 var gui, scene, camera, renderer, controls, mesh, bones, skeletonHelper;
 
 var state = {
-	animateBones: false,
+	animateBonesX: false,
+	animateBonesY: false,
+	animateBonesZ: false,
 	rotationFactor: 1,
 	showBones: false,
 };
@@ -156,14 +158,20 @@ function GUISetup() {
 	gui = new GUI();
 	var folder = gui.addFolder("S-Mesh Animation Controls");
 
-	folder.add(state, "animateBones");//adds animateBones property from state controller
-	folder.__controllers[0].name("Animate Bones");
+	folder.add(state, "animateBonesX");
+	folder.__controllers[0].name("Animate Bones X");
+
+	folder.add(state, "animateBonesY");
+	folder.__controllers[1].name("Animate Bones Y");
+
+	folder.add(state, "animateBonesZ");
+	folder.__controllers[2].name("Animate Bones Z");
 
 	folder.add(state, "rotationFactor", 1, 10);
-	folder.__controllers[1].name("Rotate by Factor");
+	folder.__controllers[3].name("Rotate by Factor");
 
-	folder.add(mesh, "pose"); //adds pose function from skinned mesh
-	folder.__controllers[2].name("Reset S-Mesh");
+	folder.add(mesh, "pose");
+	folder.__controllers[4].name("Reset S-Mesh");
 
 	folder = gui.addFolder("Bone Controls");
 	folder.add(state, "showBones");
@@ -246,10 +254,19 @@ function render() {
 	degrees += 1;
 
 	//Do some weird animation
-	if (state.animateBones) {
+	if (state.animateBonesX || state.animateBonesY || state.animateBonesZ) {
 		for (let i = 0; i < mesh.skeleton.bones.length; i++) {
-			mesh.skeleton.bones[i].rotation.z = Math.sin(toRad(degrees)) * state.rotationFactor / mesh.skeleton.bones.length;
-			//mesh.skeleton.bones[i].rotation.y = Math.sin(degrees) * 2 / mesh.skeleton.bones.length;
+			if(state.animateBonesX){
+				mesh.skeleton.bones[i].rotation.x = Math.sin(toRad(degrees)) * state.rotationFactor / mesh.skeleton.bones.length;
+			}
+
+			if(state.animateBonesY){
+				mesh.skeleton.bones[i].rotation.y = Math.sin(toRad(degrees)) * state.rotationFactor / mesh.skeleton.bones.length;
+			}
+
+			if(state.animateBonesZ){
+				mesh.skeleton.bones[i].rotation.z = Math.sin(toRad(degrees)) * state.rotationFactor / mesh.skeleton.bones.length;
+			}
 		}
 	}
 	skeletonHelper.visible = state.showBones;
