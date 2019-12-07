@@ -1,14 +1,10 @@
 import * as THREE from 'https://threejs.org/build/three.module.js';
 
-import {
-    GUI
-} from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
+import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 
-import {
-    OrbitControls
-} from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
-var camera, scene, renderer, gui;
+var camera, scene, renderer, gui, controls;
 var Box, Sphere;
 
 var DeformControls = {
@@ -16,16 +12,17 @@ var DeformControls = {
     BoxLength: 1,
     BoxVertices : 0,
     SphereVertices : 0,
-    reset: () => location.reload(),
+    Reset: () => location.reload(),
 };
 
 OrbitControlsSetup();
-init();
-animate();
+Init();
+Animate();
 GUISetup();
 
 function OrbitControlsSetup() {
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({antialias: true});
+    
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -33,7 +30,7 @@ function OrbitControlsSetup() {
     camera.position.set(0, 100 , 500);
     camera.lookAt(0,0,0);
     
-    var controls = new OrbitControls(camera, renderer.domElement);
+    controls = new OrbitControls(camera, renderer.domElement);
     controls.enableZoom = false;
 
     document.body.appendChild(renderer.domElement);
@@ -45,7 +42,7 @@ function OrbitControlsSetup() {
     }, false);
 }
 
-function init() {
+function Init() {
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x888888);
@@ -81,10 +78,10 @@ function GUISetup() {
     folder.add(DeformControls, 'BoxVertices', 0,  Box.geometry.vertices.length);
     folder.add(DeformControls, 'SphereLength', 1, 100);
     folder.add(DeformControls, 'SphereVertices', 0,  Sphere.geometry.vertices.length);
-    folder.add(DeformControls, 'reset');
+    folder.add(DeformControls, 'Reset');
 }
 
-function deformVertices() {
+function DeformVertices() {
     var geometry = Box.geometry;
     for (var i = 0; i < DeformControls.BoxVertices; i++) {
         if(typeof  geometry.vertices[i] != "undefined"){
@@ -102,8 +99,8 @@ function deformVertices() {
     geometry.verticesNeedUpdate = true;
 };
 
-function animate() {
-    requestAnimationFrame(animate);
-    deformVertices();
+function Animate() {
+    requestAnimationFrame(Animate);
+    DeformVertices();
     renderer.render(scene, camera);
 }

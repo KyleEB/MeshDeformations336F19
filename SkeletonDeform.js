@@ -1,14 +1,10 @@
 import * as THREE from "https://threejs.org/build/three.module.js";
 
-import {
-	GUI
-} from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
+import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 
-import {
-	OrbitControls
-} from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
-var gui, scene, camera, renderer, orbit, mesh, bones, skeletonHelper;
+var gui, scene, camera, renderer, controls, mesh, bones, skeletonHelper;
 
 var state = {
 	animateBones: false,
@@ -16,27 +12,31 @@ var state = {
 	showBones: false,
 };
 
-function initScene() {
+function OrbitControlsSetup() {
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
+	camera.position.set(0,20,50)
 
-	gui = new GUI();
-
-	scene = new THREE.Scene();
-	scene.background = new THREE.Color(0x888888);
-
-	camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
-	camera.position.z = 50;
-	camera.position.y = 20;
-
-	renderer = new THREE.WebGLRenderer({
-		antialias: true
-	});
+	renderer = new THREE.WebGLRenderer({ antialias: true });
 
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	document.body.appendChild(renderer.domElement);
 
-	orbit = new OrbitControls(camera, renderer.domElement);
-	orbit.enableZoom = false;
+	controls = new OrbitControls(camera, renderer.domElement);
+	controls.enableZoom = false;
+
+	window.addEventListener('resize', function () {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+	}, false);
+}
+
+function initScene() {
+	OrbitControlsSetup();
+
+	scene = new THREE.Scene();
+	scene.background = new THREE.Color(0x888888);
 
 	var light = new THREE.PointLight(0xffffff,1,100);
 
@@ -46,17 +46,8 @@ function initScene() {
 	light = new THREE.AmbientLight(0x111111);
     scene.add(light);
 
-	window.addEventListener('resize', function () {
-
-		camera.aspect = window.innerWidth / window.innerHeight;
-		camera.updateProjectionMatrix();
-
-		renderer.setSize(window.innerWidth, window.innerHeight);
-
-	}, false);
-
-	initBones();
-	setupDatGui();
+	BoneSetup();
+	GUISetup();
 }
 
 function createGeometry(sizing) {
@@ -134,7 +125,7 @@ function createBonesPipe(sizing) {
 
 }
 
-function createMesh(geometry, bones) {
+function CreateMeshWithBones(geometry, bones) {
 
 	var material = new THREE.MeshPhongMaterial({
 		skinning: true,
@@ -156,8 +147,9 @@ function createMesh(geometry, bones) {
 	return mesh;
 }
 
-function setupDatGui() {
+function GUISetup() {
 
+	gui = new GUI();
 	var folder = gui.addFolder("S-Mesh Animation Controls");
 
 	folder.add(state, "animateBones");//adds animateBones property from state controller
@@ -180,8 +172,6 @@ function setupDatGui() {
 		var bone = bones[i];
 
 		var subfolder = folder.addFolder("Bone " + i);
-
-
 
 		subfolder.add(bone.position, 'x', -10 + bone.position.x, 10 + bone.position.x);
 		subfolder.add(bone.position, 'y', -10 + bone.position.y, 10 + bone.position.y);
@@ -206,13 +196,10 @@ function setupDatGui() {
 		subfolder.__controllers[6].name("scale.x");
 		subfolder.__controllers[7].name("scale.y");
 		subfolder.__controllers[8].name("scale.z");
-
 	}
-
-
 }
 
-function initBones() {
+function BoneSetup() {
 
 	var segmentHeight = 10;
 	var segmentWidth = 1;
@@ -240,9 +227,8 @@ function initBones() {
 
 	var geometry = createGeometry(sizing);
 	var bones = createBonesPipe(sizing);
-	mesh = createMesh(geometry, bones);
+	mesh = CreateMeshWithBones(geometry, bones);
 
-	mesh.scale.multiplyScalar(1);
 	scene.add(mesh);
 }
 
@@ -267,7 +253,6 @@ function render() {
 	
 	skeletonHelper.visible = state.showBones;
 	
-
 	renderer.render(scene, camera);
 
 }
