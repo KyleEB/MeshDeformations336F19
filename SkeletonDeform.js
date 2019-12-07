@@ -12,9 +12,17 @@ var state = {
 	showBones: false,
 };
 
+
+OrbitControlsSetup();
+Init();
+BoneSetup();
+GUISetup();
+render();
+
 function OrbitControlsSetup() {
+
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
-	camera.position.set(0,20,50)
+	camera.position.set(0,20,50);
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 
@@ -32,8 +40,7 @@ function OrbitControlsSetup() {
 	}, false);
 }
 
-function initScene() {
-	OrbitControlsSetup();
+function Init() {
 
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color(0x888888);
@@ -45,9 +52,6 @@ function initScene() {
 
 	light = new THREE.AmbientLight(0x111111);
     scene.add(light);
-
-	BoneSetup();
-	GUISetup();
 }
 
 function createGeometry(sizing) {
@@ -243,23 +247,15 @@ function render() {
 
 	//Do some weird animation
 	if (state.animateBones) {
-
 		for (let i = 0; i < mesh.skeleton.bones.length; i++) {
 			mesh.skeleton.bones[i].rotation.z = Math.sin(toRad(degrees)) * state.rotationFactor / mesh.skeleton.bones.length;
 			//mesh.skeleton.bones[i].rotation.y = Math.sin(degrees) * 2 / mesh.skeleton.bones.length;
 		}
-
 	}
-	
 	skeletonHelper.visible = state.showBones;
-	
 	renderer.render(scene, camera);
-
 }
 
 function toRad(degrees){
 	return degrees * Math.PI / 180;
 }
-
-initScene();
-render();
