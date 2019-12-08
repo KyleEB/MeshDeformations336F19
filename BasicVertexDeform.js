@@ -56,6 +56,7 @@ function Init() {
 
     var geometrySphere = new THREE.SphereGeometry(50, 50, 50);
     var geometryBox = new THREE.BoxGeometry(50, 50, 50);
+    
 
     var material = new THREE.MeshLambertMaterial({
         color: 0xffff00,
