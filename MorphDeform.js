@@ -46,7 +46,6 @@ function InitScene() {
     scene.add(camera);
 
     var light = new THREE.PointLight(0xffffff, 1);
-
     camera.add(light);
 
     var geometry = MakeGeometryWithMorphs();
