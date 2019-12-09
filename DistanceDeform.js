@@ -3,7 +3,7 @@ import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
 let camera, scene, renderer, gui;
-let geometry, Cube;
+let geometry, Torus;
 
 let DeformControls = {
     TwistAmount: 1,
@@ -55,11 +55,30 @@ function init() {
     var ambientLight = new THREE.AmbientLight(0x111111);
     scene.add(ambientLight);
 
-    geometry = new THREE.BoxGeometry(20, 20, 20, 20, 20, 20); 
-    const material = new THREE.MeshNormalMaterial({ wireframe: true }); 
-    Cube = new THREE.Mesh(geometry, material); 
+    geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
+    const material = new THREE.MeshDepthMaterial({ wireframe: true }); 
+    Torus = new THREE.Mesh(geometry, material); 
 
-    scene.add(Cube);
+    var bones = [];
+
+var shoulder = new THREE.Bone();
+var elbow = new THREE.Bone();
+var hand = new THREE.Bone();
+
+shoulder.add( elbow );
+elbow.add( hand );
+
+bones.push( shoulder );
+bones.push( elbow );
+bones.push( hand );
+
+shoulder.position.y = -5;
+elbow.position.y = 0;
+hand.position.y = 5;
+
+var armSkeleton = new THREE.Skeleton( bones );
+armSkeleton.add(Torus);
+    scene.add(armSkeleton);
 
     GUISetup();
 }
@@ -67,7 +86,7 @@ function init() {
 function GUISetup() {
     gui = new GUI();
     var folder = gui.addFolder("Deform Controls");
-    folder.add(DeformControls, 'TwistAmount', 1, 10);
+    folder.add(DeformControls, 'TwistAmount', 1, 50);
     folder.add(DeformControls, 'TwistAxisX', true);
     folder.add(DeformControls, 'TwistAxisY', false);
     folder.add(DeformControls, 'TwistAxisZ', false);
@@ -81,16 +100,14 @@ function GUISetup() {
 }
 
 function animate() {
-    twistObj( geometry );
+    // twistObj( geometry );
     requestAnimationFrame( animate );
     renderer.render( scene, camera );
 }
 
 function twistObj(geometry) {
     const quaternion = new THREE.Quaternion();
-    let position = 0; 
-    let direction = 0;
-
+    let position, direction = 0;
     for (let i = 0; i < geometry.vertices.length; i++) {
 
         direction = new THREE.Vector3(
@@ -99,17 +116,17 @@ function twistObj(geometry) {
             DeformControls.TwistDirectionZ ? 1 : 0
         );
         
-        position = new THREE.Vector3(
-            DeformControls.TwistAxisX ? geometry.vertices[i].x : 0,
-            DeformControls.TwistAxisY ? geometry.vertices[i].y : 0,
-            DeformControls.TwistAxisZ ? geometry.vertices[i].z : 0
-        );
+        DeformControls.TwistAxisX ? position += geometry.vertices[i].x : 1;
+        DeformControls.TwistAxisY ? position += geometry.vertices[i].y : 0;
+        DeformControls.TwistAxisZ ? position += geometry.vertices[i].z : 0;
         
-        Cube.scale.set(DeformControls.ScaleX, DeformControls.ScaleY, DeformControls.ScaleZ);
-        // console.log(direction, (position / DeformControls.TwistAmount), position, DeformControls.TwistAmount);
+        Torus.scale.set(DeformControls.ScaleX, DeformControls.ScaleY, DeformControls.ScaleZ);
+        // Cube.ScaleY.set(DeformControls.ScaleY);
+        // Cube.ScaleZ.set(DeformControls.ScaleZ);
+
         quaternion.setFromAxisAngle(
             direction, 
-            (Math.PI / 180) * (position.x ? position.x : position.y ? position.y : position.z ? position.z : 0 / DeformControls.TwistAmount)
+            (Math.PI / 180) * (position / DeformControls.TwistAmount)
         );
 
         geometry.vertices[i].applyQuaternion(quaternion);
