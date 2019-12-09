@@ -4,10 +4,13 @@ import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
-var  gui, controls, camera, scene, renderer, mesh;
+var  gui, controls, camera, scene, renderer;
+
+var planeMesh, sphereMesh;
 
 var DeformControls = {
     Squish: 0,
+    y: 0,
 };
 
 OrbitControlsSetup();
@@ -48,35 +51,46 @@ function InitScene() {
     var light = new THREE.PointLight(0xffffff, 1);
     camera.add(light);
 
-    var geometry = MakeGeometryWithMorphs();
-    var material = new THREE.MeshPhongMaterial({
+    var sphereGeometry = new THREE.SphereBufferGeometry(5, 32, 32);
+
+    MakeGeometryWithMorphs(sphereGeometry);
+
+    var sphereMaterial = new THREE.MeshPhongMaterial({
         color: 0xff0000,
         flatShading: true,
         morphTargets: true
     });
 
-    var plane =
+    sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
-    mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+    sphereMesh.position.set(0, 1, 0);
+    sphereMesh.scale.set(0.10,0.10,0.10);
+
+    var planeGeometry = new THREE.PlaneBufferGeometry(5,32,32);
+    planeGeometry.rotateX(toRad(-90));
+    var planeMaterial = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        flatShading: false,
+        side: THREE.DoubleSide,
+    });
+
+    var planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+    scene.add(planeMesh);
+    scene.add(sphereMesh);
 
 }
 
-function MakeGeometryWithMorphs() {
-    var geometry = new THREE.SphereBufferGeometry(5, 32, 32);
-    // create an empty array to  hold targets for the attribute we want to morph
-    // morphing positions and normals is supported
-    geometry.morphAttributes.position = [];
-    // the original positions of the cube's vertices
-    var positions = geometry.attributes.position.array;
-    // for the first morph target we'll move the cube's vertices onto the surface of a sphere
+function MakeGeometryWithMorphs(geometry) {
     
-    // for the second morph target, we'll twist the cubes vertices
-    var squishPositions = [];
+    
+    geometry.morphAttributes.position = [];
+    
+    var positions = geometry.attributes.position.array; // original positions of the geometries vertices
+    
+    var squishPositions = []; //target array for making the sphere into a disc or a "squished sphere"
 
     var vertex = new THREE.Vector3();
    
-    console.log(positions);
     for (var i = 0; i < positions.length; i += 3) {
         var x = positions[i];
         var y = positions[i + 1];
@@ -85,20 +99,24 @@ function MakeGeometryWithMorphs() {
         vertex.set(x * 2, y / 4, z * 2);
         vertex.toArray(squishPositions, squishPositions.length);
     }
-    // add the twisted positions as the second morph target
+
     geometry.morphAttributes.position[0] = new THREE.Float32BufferAttribute(squishPositions, 3);
-    return geometry;
 }
 
 function GUISetup() {
     var gui = new GUI();
-    var folder = gui.addFolder('Morph Targets');
-    folder.add(DeformControls, 'Squish', 0, 1).step(0.01).onChange(function (value) {
-        mesh.morphTargetInfluences[0] = value;
+    var folder = gui.addFolder('Morph Influence');
+    // folder.add(DeformControls, 'Squish', 0, 1).step(0.01).onChange(function (value) {
+    //     sphereMesh.morphTargetInfluences[0] = value;
+    // });
+
+    folder.add(DeformControls, 'y', 0, 1).step(0.01).onChange(function (value) {
+        sphereMesh.position.y = value;
+        sphereMesh.morphTargetInfluences[0] = value;
     });
 }
 
-
+var sphereIncrement = 0.001;
 function render() {
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
