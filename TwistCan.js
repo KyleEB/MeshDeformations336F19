@@ -3,25 +3,13 @@ import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
 let camera, scene, renderer, gui;
-let geometry, Mesh;
-
-// let geometries = {
-//     Cube: new THREE.BoxGeometry(20, 20, 20, 20, 20, 20),
-//     Sphere: new THREE.SphereGeometry(10, 15, 15)
-// }
+let geometry, material, Mesh, texture;
+let twistAmount = 10;
 
 let DeformControls = {
-    // Geometry: 'Cube',
-    TwistAmount: 1,
-    TwistAxisX: false,
     TwistAxisY: false,
-    TwistAxisZ: false,
-    TwistDirectionX: true,
-    TwistDirectionY: false,
-    TwistDirectionZ: false,
-    ScaleX: 1,
     ScaleY: 1,
-    ScaleZ: 1,
+    WireFrame: false,
     Reset: () => location.reload()
 }
 
@@ -61,9 +49,9 @@ function init() {
     var ambientLight = new THREE.AmbientLight(0x111111);
     scene.add(ambientLight);
     
-    geometry = new THREE.BoxGeometry(20, 20, 20, 20, 20, 20); 
-    const material = new THREE.MeshNormalMaterial({ wireframe: true }); 
-    // const material = new THREE.MeshNormalMaterial({ color: 0x001133 }); 
+    geometry = new THREE.CylinderGeometry(5, 5, 20, 32, 5);
+    texture = new THREE.TextureLoader().load('cokeCan.jfif');
+    material = new THREE.MeshBasicMaterial({ map: texture });
     Mesh = new THREE.Mesh(geometry, material); 
     
     scene.add(Mesh);
@@ -74,55 +62,33 @@ function init() {
 function GUISetup() {
     gui = new GUI();
     var folder = gui.addFolder("Deform Controls");
-    // folder.add(DeformControls, 'Geometry', Object.keys(geometries)).onChange(() => init());
-    folder.add(DeformControls, 'TwistAmount', -10, 10);
-    folder.add(DeformControls, 'TwistAxisX', true);
     folder.add(DeformControls, 'TwistAxisY', false);
-    folder.add(DeformControls, 'TwistAxisZ', false);
-    folder.add(DeformControls, 'TwistDirectionX', true);
-    folder.add(DeformControls, 'TwistDirectionY', false);
-    folder.add(DeformControls, 'TwistDirectionZ', false);
-    folder.add(DeformControls, 'ScaleX', 1, 10);
-    folder.add(DeformControls, 'ScaleY', 1, 10);
-    folder.add(DeformControls, 'ScaleZ', 1, 10);
+    folder.add(DeformControls, 'WireFrame', false);
     folder.add(DeformControls, 'Reset', false);
 }
 
 function animate() {
-    twistObj( geometry );
+    DeformControls.ScaleY > 0.25 ? (DeformControls.ScaleY-=0.01, twistObj( geometry )) : null;
     requestAnimationFrame( animate );
     renderer.render( scene, camera );
 }
 
 function twistObj(geometry) {
     const quaternion = new THREE.Quaternion();
-    let position = 0; 
     let direction = 0;
+    twistAmount -= 0.1;
 
     for (let i = 0; i < geometry.vertices.length; i++) {
 
-        direction = new THREE.Vector3(
-            DeformControls.TwistDirectionX ? 1 : 0,
-            DeformControls.TwistDirectionY ? 1 : 0, 
-            DeformControls.TwistDirectionZ ? 1 : 0
-        );
-        
-        position = new THREE.Vector3(
-            DeformControls.TwistAxisX ? geometry.vertices[i].x : 0,
-            DeformControls.TwistAxisY ? geometry.vertices[i].y : 0,
-            DeformControls.TwistAxisZ ? geometry.vertices[i].z : 0
-        );
-        
-        Mesh.scale.set(DeformControls.ScaleX, DeformControls.ScaleY, DeformControls.ScaleZ);
-        i % 10 == 0 ? -DeformControls.TwistAmount : null;
+        direction = new THREE.Vector3(0,1,0);
+        Mesh.scale.set(1, DeformControls.ScaleY, 1);
         quaternion.setFromAxisAngle(
             direction, 
-            (Math.PI / 180) * ((position.x ? position.x : position.y ? position.y : position.z ? position.z : 0) / DeformControls.TwistAmount)
+            (Math.PI / 180) * (geometry.vertices[i].y / twistAmount)
         );
 
         geometry.vertices[i].applyQuaternion(quaternion);
     }
-
     // tells Three.js to re-render this mesh
     geometry.verticesNeedUpdate = true;
 }
