@@ -7,7 +7,7 @@ let geometry, material, Mesh, texture;
 let twistAmount = 10;
 
 let DeformControls = {
-    TwistAxisY: false,
+    Crush: false,
     ScaleY: 1,
     WireFrame: false,
     Reset: () => location.reload()
@@ -62,8 +62,7 @@ function init() {
 function GUISetup() {
     gui = new GUI();
     var folder = gui.addFolder("Deform Controls");
-    folder.add(DeformControls, 'TwistAxisY', false);
-    folder.add(DeformControls, 'WireFrame', false);
+    folder.add(DeformControls, 'Crush', false);
     folder.add(DeformControls, 'Reset', false);
 }
 /**
@@ -72,6 +71,7 @@ function GUISetup() {
  *  
  */
 function animate() {
+    if(DeformControls.Crush)
     DeformControls.ScaleY > 0.25 ? (DeformControls.ScaleY-=0.01, twistObj( geometry )) : null;
     requestAnimationFrame( animate );
     renderer.render( scene, camera );
