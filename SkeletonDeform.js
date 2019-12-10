@@ -173,42 +173,9 @@ function GUISetup() {
 	folder.add(mesh, "pose");
 	folder.__controllers[4].name("Reset S-Mesh");
 
-	folder = gui.addFolder("Bone Controls");
 	folder.add(state, "showBones");
-	folder.__controllers[0].name("Show Bones");
+	folder.__controllers[5].name("Show Bones");
 
-	var bones = mesh.skeleton.bones;
-
-	for (var i = 0; i < bones.length; i++) {
-
-		var bone = bones[i];
-
-		var subfolder = folder.addFolder("Bone " + i);
-
-		subfolder.add(bone.position, 'x', -10 + bone.position.x, 10 + bone.position.x);
-		subfolder.add(bone.position, 'y', -10 + bone.position.y, 10 + bone.position.y);
-		subfolder.add(bone.position, 'z', -10 + bone.position.z, 10 + bone.position.z);
-
-		subfolder.add(bone.rotation, 'x', -Math.PI * 0.5, Math.PI * 0.5);
-		subfolder.add(bone.rotation, 'y', -Math.PI * 0.5, Math.PI * 0.5);
-		subfolder.add(bone.rotation, 'z', -Math.PI * 0.5, Math.PI * 0.5);
-
-		subfolder.add(bone.scale, 'x', 0, 2);
-		subfolder.add(bone.scale, 'y', 0, 2);
-		subfolder.add(bone.scale, 'z', 0, 2);
-
-		subfolder.__controllers[0].name("position.x");
-		subfolder.__controllers[1].name("position.y");
-		subfolder.__controllers[2].name("position.z");
-
-		subfolder.__controllers[3].name("rotation.x");
-		subfolder.__controllers[4].name("rotation.y");
-		subfolder.__controllers[5].name("rotation.z");
-
-		subfolder.__controllers[6].name("scale.x");
-		subfolder.__controllers[7].name("scale.y");
-		subfolder.__controllers[8].name("scale.z");
-	}
 }
 
 function BoneSetup() {

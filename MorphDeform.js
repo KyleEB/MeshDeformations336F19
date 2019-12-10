@@ -9,8 +9,7 @@ var  gui, controls, camera, scene, renderer;
 var planeMesh, sphereMesh;
 
 var DeformControls = {
-    Squish: 0,
-    y: 0,
+    Animate: true,
 };
 
 OrbitControlsSetup();
@@ -21,9 +20,12 @@ render();
 function OrbitControlsSetup() {
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200);
-	camera.position.set(0,10,20);
+	camera.position.set(0,1,5);
 
-	renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize(window.innerWidth, window.innerHeight);
@@ -49,35 +51,43 @@ function InitScene() {
     scene.add(camera);
 
     var light = new THREE.PointLight(0xffffff, 1);
+    
     camera.add(light);
 
-    var sphereGeometry = new THREE.SphereBufferGeometry(5, 32, 32);
+    var sphereGeometry = new THREE.SphereBufferGeometry(5, 64, 64);
 
     MakeGeometryWithMorphs(sphereGeometry);
 
     var sphereMaterial = new THREE.MeshPhongMaterial({
         color: 0xff0000,
-        flatShading: true,
         morphTargets: true
     });
 
     sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    sphereMesh.castShadow = true;
+
+    var sphereLight = new THREE.PointLight(0xfffff, 1);
+    sphereLight.castShadow = true;
+
+    sphereLight.position.set(2,10,0);
+    scene.add(sphereLight);
 
     sphereMesh.position.set(0, 1, 0);
     sphereMesh.scale.set(0.10,0.10,0.10);
 
-    var planeGeometry = new THREE.PlaneBufferGeometry(5,32,32);
+    var planeGeometry = new THREE.PlaneBufferGeometry(5,5,32);
     planeGeometry.rotateX(toRad(-90));
     var planeMaterial = new THREE.MeshPhongMaterial({
-        color: 0xffffff,
+        color: 0x555555,
         flatShading: false,
         side: THREE.DoubleSide,
     });
 
-    var planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+    planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+    planeMesh.receiveShadow = true;
+
     scene.add(planeMesh);
     scene.add(sphereMesh);
-
 }
 
 function MakeGeometryWithMorphs(geometry) {
@@ -105,19 +115,21 @@ function MakeGeometryWithMorphs(geometry) {
 
 function GUISetup() {
     var gui = new GUI();
-    var folder = gui.addFolder('Morph Influence');
-    // folder.add(DeformControls, 'Squish', 0, 1).step(0.01).onChange(function (value) {
-    //     sphereMesh.morphTargetInfluences[0] = value;
-    // });
-
-    folder.add(DeformControls, 'y', 0, 1).step(0.01).onChange(function (value) {
-        sphereMesh.position.y = value;
-        sphereMesh.morphTargetInfluences[0] = value;
-    });
+    gui.add(DeformControls, 'Animate');
 }
 
-var sphereIncrement = 0.001;
+var degrees = 0;
+
 function render() {
+    if(DeformControls.Animate){
+        let distance = sphereMesh.position.y - planeMesh.position.y;
+        let yCoord = Math.sin(toRad(degrees));
+        degrees = (degrees + 1) % 180;
+        sphereMesh.position.y = yCoord;
+        if(yCoord < .50){
+            sphereMesh.morphTargetInfluences[0] = (0.5 - Math.sqrt(distance) );
+        }
+    }
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
 }
