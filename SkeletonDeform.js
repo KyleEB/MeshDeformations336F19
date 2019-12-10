@@ -14,7 +14,6 @@ var state = {
 	showBones: false,
 };
 
-
 OrbitControlsSetup();
 Init();
 BoneSetup();
@@ -58,15 +57,6 @@ function Init() {
 
 function createGeometry(sizing) {
 
-	// var geometry = new THREE.CylinderBufferGeometry(
-	// 	5, // radiusTop
-	// 	5, // radiusBottom
-	// 	sizing.height, // height
-	// 	8, // radiusSegments
-	// 	sizing.segmentCount * 3, // heightSegments
-	// 	true // openEnded
-	// );
-
 	var geometry = new THREE.BoxBufferGeometry(
 		sizing.width, // width
 		sizing.height, // height
@@ -75,13 +65,6 @@ function createGeometry(sizing) {
 		sizing.segmentCount, // height segments
 		sizing.segmentCount, // depth segments
 	);
-
-	// var geometry = new THREE.SphereBufferGeometry(
-	// 	sizing.radius, // radius
-	// 	sizing.width * 5, // width segments
-	//  	sizing.height * 5, // height segments
-	// );
-
 
 	var position = geometry.attributes.position;
 
@@ -118,7 +101,7 @@ function createBonesPipe(sizing) {
 	var prevBone = new THREE.Bone();
 	bones.push(prevBone);
 	prevBone.position.y = -sizing.halfHeight;
-	console.log(sizing.segmentCount);
+	
 	for (var i = 0; i < sizing.segmentCount; i++) {
 		var bone = new THREE.Bone();
 		bone.position.y = sizing.segmentHeight;
@@ -128,7 +111,6 @@ function createBonesPipe(sizing) {
 	}
 
 	return bones;
-
 }
 
 function CreateMeshWithBones(geometry, bones) {
@@ -204,10 +186,27 @@ function BoneSetup() {
 		radius: radius,
 	};
 
+
 	var geometry = createGeometry(sizing);
 	var bones = createBonesPipe(sizing);
-	mesh = CreateMeshWithBones(geometry, bones);
 
+	var fingerGeometry = createGeometry(sizing);
+	var fingerBones = createBonesPipe(sizing); 
+
+
+	var fingerMeshes = []; 
+	for(var i = 0; i < 5; i++){
+		fingerMeshes[i] = CreateMeshWithBones(fingerGeometry.clone(),fingerBones.clone());
+		fingerMeshes[i].scale.set(0.2,0.2,0.2);
+		fingerMeshes[i].rotateX(Math.PI/2);
+		fingerMeshes[i].position.set(i, i, i);
+		scene.add(fingerMeshes[i]);
+	}
+
+
+	mesh = CreateMeshWithBones(geometry, bones);
+	mesh.visible = false;
+	
 	scene.add(mesh);
 }
 
