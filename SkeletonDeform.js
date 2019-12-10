@@ -26,7 +26,8 @@ render();
 function OrbitControlsSetup() {
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
-	camera.position.set(0,50,20);
+	camera.position.set(0,50,30);
+	
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 
@@ -243,16 +244,19 @@ function render() {
 	//Do some weird animation
 	if (state.animateBonesX || state.animateBonesY || state.animateBonesZ) {
 		for (let i = 0; i < mesh.skeleton.bones.length; i++) {
-			if(state.animateBonesX){
-				mesh.skeleton.bones[i].rotation.x = Math.sin(toRad(degrees)) * state.rotationFactor / mesh.skeleton.bones.length;
-			}
+			var rotateBy = Math.sin(toRad(degrees)) * state.rotationFactor / mesh.skeleton.bones.length;
+			if(rotateBy > 0){
+				if(state.animateBonesX){
+					mesh.skeleton.bones[i].rotation.x = rotateBy;
+				}
 
-			if(state.animateBonesY){
-				mesh.skeleton.bones[i].rotation.y = Math.sin(toRad(degrees)) * state.rotationFactor / mesh.skeleton.bones.length;
-			}
+				if(state.animateBonesY){
+					mesh.skeleton.bones[i].rotation.y = rotateBy;
+				}
 
-			if(state.animateBonesZ){
-				mesh.skeleton.bones[i].rotation.z = Math.sin(toRad(degrees)) * state.rotationFactor / mesh.skeleton.bones.length;
+				if(state.animateBonesZ){
+					mesh.skeleton.bones[i].rotation.z = rotateBy;
+				}
 			}
 		}
 	}
