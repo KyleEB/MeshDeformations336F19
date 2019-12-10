@@ -5,6 +5,8 @@ import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
 var gui, scene, camera, renderer, controls, mesh, bones, skeletonHelper;
+var fingerMeshes;
+var skeletonHelpers = [];
 
 var state = {
 	animateBonesX: false,
@@ -12,6 +14,7 @@ var state = {
 	animateBonesZ: false,
 	rotationFactor: 1,
 	showBones: false,
+	closeHand: false,
 };
 
 OrbitControlsSetup();
@@ -23,7 +26,7 @@ render();
 function OrbitControlsSetup() {
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
-	camera.position.set(0,20,50);
+	camera.position.set(0,50,20);
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 
@@ -32,7 +35,7 @@ function OrbitControlsSetup() {
 	document.body.appendChild(renderer.domElement);
 
 	controls = new OrbitControls(camera, renderer.domElement);
-	controls.enableZoom = false;
+	controls.enableZoom = true;
 
 	window.addEventListener('resize', function () {
 		camera.aspect = window.innerWidth / window.innerHeight;
@@ -130,6 +133,7 @@ function CreateMeshWithBones(geometry, bones) {
 
 	skeletonHelper = new THREE.SkeletonHelper(mesh);
 	skeletonHelper.material.linewidth = 8;
+	skeletonHelpers.push(skeletonHelper);
 	scene.add(skeletonHelper);
 
 	return mesh;
@@ -149,14 +153,17 @@ function GUISetup() {
 	folder.add(state, "animateBonesZ");
 	folder.__controllers[2].name("Animate Bones Z");
 
+	folder.add(state, "closeHand");
+	folder.__controllers[3].name("Close Hand");
+
 	folder.add(state, "rotationFactor", 1, 10);
-	folder.__controllers[3].name("Rotate by Factor");
+	folder.__controllers[4].name("Rotate by Factor");
 
 	folder.add(mesh, "pose");
-	folder.__controllers[4].name("Reset S-Mesh");
+	folder.__controllers[5].name("Reset S-Mesh");
 
 	folder.add(state, "showBones");
-	folder.__controllers[5].name("Show Bones");
+	folder.__controllers[6].name("Show Bones");
 
 }
 
@@ -193,19 +200,33 @@ function BoneSetup() {
 	var fingerGeometry = createGeometry(sizing);
 	var fingerBones = createBonesPipe(sizing); 
 
+	var fingerScales = [
+		new THREE.Vector3(0.15,0.20,0.20),
+		new THREE.Vector3(0.15,0.20,0.20),
+		new THREE.Vector3(0.15,0.20,0.20),
+		new THREE.Vector3(0.15,0.20,0.20),
+		new THREE.Vector3(0.15,0.10,0.20),
+	]
 
-	var fingerMeshes = []; 
+	fingerMeshes = [];
 	for(var i = 0; i < 5; i++){
-		fingerMeshes[i] = CreateMeshWithBones(fingerGeometry.clone(),fingerBones.clone());
-		fingerMeshes[i].scale.set(0.2,0.2,0.2);
-		fingerMeshes[i].rotateX(Math.PI/2);
-		fingerMeshes[i].position.set(i, i, i);
-		scene.add(fingerMeshes[i]);
+		var fingerGeometry = createGeometry(sizing);
+		var fingerBones = createBonesPipe(sizing); 
+		fingerMeshes[i] = CreateMeshWithBones(fingerGeometry,fingerBones);
+		fingerMeshes[i].scale.set(fingerScales[i].x, fingerScales[i].y, fingerScales[i].z);
+		fingerMeshes[i].position.set((i+1) * (sizing.width / 5) - sizing.width / 2 , sizing.height / 20,0);
+
+		if( i == 4){
+			fingerMeshes[i].rotation.set(0,0,toRad(-45));
+			fingerMeshes[i].position.set((i+2) * (sizing.width / 6) - sizing.width / 2 , sizing.height / 40,0);
+		}
+
+		bones[bones.length - 1].add(fingerMeshes[i]);
 	}
 
+	console.log(fingerMeshes);
 
 	mesh = CreateMeshWithBones(geometry, bones);
-	mesh.visible = false;
 	
 	scene.add(mesh);
 }
@@ -235,7 +256,25 @@ function render() {
 			}
 		}
 	}
-	skeletonHelper.visible = state.showBones;
+
+	if(state.closeHand){
+		for(let i = 0; i < fingerMeshes.length; i++){
+			for(let j = 0; j < fingerMeshes[i].skeleton.bones.length; j++){
+				let rotateX = Math.sin(toRad(degrees)) / 2;
+				if(rotateX > 0){
+					fingerMeshes[i].skeleton.bones[j].rotation.x = rotateX;
+					if(i == fingerMeshes.length - 1){
+						fingerMeshes[i].skeleton.bones[j].rotation.x = rotateX * 1.5;
+					}
+				}
+				
+			}
+		}
+	}
+
+	for(let i = 0; i < skeletonHelpers.length; i++){
+		skeletonHelpers[i].visible = state.showBones;
+	}
 	renderer.render(scene, camera);
 }
 
