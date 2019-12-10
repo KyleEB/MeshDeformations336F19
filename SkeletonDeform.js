@@ -36,6 +36,8 @@ function OrbitControlsSetup() {
 	document.body.appendChild(renderer.domElement);
 
 	controls = new OrbitControls(camera, renderer.domElement);
+	console.log(controls);
+	controls.target.set(0,30,0);
 	controls.enableZoom = true;
 
 	window.addEventListener('resize', function () {
