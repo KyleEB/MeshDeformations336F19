@@ -116,7 +116,6 @@ function MakeGeometryWithMorphs(geometry) {
 function GUISetup() {
     var gui = new GUI();
     gui.add(DeformControls, 'Animate');
-
 }
 
 var degrees = 0;
