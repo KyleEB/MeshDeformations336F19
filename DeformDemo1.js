@@ -13,7 +13,7 @@ let geometry, Mesh;
 let DeformControls = {
     // Geometry: 'Cube',
     TwistAmount: 1,
-    TwistAxisX: true,
+    TwistAxisX: false,
     TwistAxisY: false,
     TwistAxisZ: false,
     TwistDirectionX: true,
@@ -63,6 +63,7 @@ function init() {
     
     geometry = new THREE.BoxGeometry(20, 20, 20, 20, 20, 20); 
     const material = new THREE.MeshNormalMaterial({ wireframe: true }); 
+    // const material = new THREE.MeshNormalMaterial({ color: 0x001133 }); 
     Mesh = new THREE.Mesh(geometry, material); 
     
     scene.add(Mesh);
@@ -85,15 +86,10 @@ function GUISetup() {
     folder.add(DeformControls, 'ScaleY', 1, 10);
     folder.add(DeformControls, 'ScaleZ', 1, 10);
     folder.add(DeformControls, 'Reset', false);
-    // console.log(folder);
-    // folder.folder.
-    // // gui.folders.DeformControls._controllers.array.forEach(element => {
-    // //     element.onChange(() => init())
-    // // });
 }
 
 function animate() {
-    // twistObj( geometry );
+    twistObj( geometry );
     requestAnimationFrame( animate );
     renderer.render( scene, camera );
 }
@@ -118,7 +114,7 @@ function twistObj(geometry) {
         );
         
         Mesh.scale.set(DeformControls.ScaleX, DeformControls.ScaleY, DeformControls.ScaleZ);
-        // console.log(direction, (position / DeformControls.TwistAmount), position, DeformControls.TwistAmount);
+       
         quaternion.setFromAxisAngle(
             direction, 
             (Math.PI / 180) * (position.x ? position.x : position.y ? position.y : position.z ? position.z : 0 / DeformControls.TwistAmount)
