@@ -3,9 +3,15 @@ import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
 let camera, scene, renderer, gui;
-let geometry, Cube;
+let geometry, Mesh;
+
+// let geometries = {
+//     Cube: new THREE.BoxGeometry(20, 20, 20, 20, 20, 20),
+//     Sphere: new THREE.SphereGeometry(10, 15, 15)
+// }
 
 let DeformControls = {
+    // Geometry: 'Cube',
     TwistAmount: 1,
     TwistAxisX: true,
     TwistAxisY: false,
@@ -54,12 +60,12 @@ function init() {
     scene.add(camera);
     var ambientLight = new THREE.AmbientLight(0x111111);
     scene.add(ambientLight);
-
+    
     geometry = new THREE.BoxGeometry(20, 20, 20, 20, 20, 20); 
     const material = new THREE.MeshNormalMaterial({ wireframe: true }); 
-    Cube = new THREE.Mesh(geometry, material); 
-
-    scene.add(Cube);
+    Mesh = new THREE.Mesh(geometry, material); 
+    
+    scene.add(Mesh);
 
     GUISetup();
 }
@@ -67,6 +73,7 @@ function init() {
 function GUISetup() {
     gui = new GUI();
     var folder = gui.addFolder("Deform Controls");
+    // folder.add(DeformControls, 'Geometry', Object.keys(geometries)).onChange(() => init());
     folder.add(DeformControls, 'TwistAmount', 1, 10);
     folder.add(DeformControls, 'TwistAxisX', true);
     folder.add(DeformControls, 'TwistAxisY', false);
@@ -78,10 +85,15 @@ function GUISetup() {
     folder.add(DeformControls, 'ScaleY', 1, 10);
     folder.add(DeformControls, 'ScaleZ', 1, 10);
     folder.add(DeformControls, 'Reset', false);
+    // console.log(folder);
+    // folder.folder.
+    // // gui.folders.DeformControls._controllers.array.forEach(element => {
+    // //     element.onChange(() => init())
+    // // });
 }
 
 function animate() {
-    twistObj( geometry );
+    // twistObj( geometry );
     requestAnimationFrame( animate );
     renderer.render( scene, camera );
 }
@@ -105,7 +117,7 @@ function twistObj(geometry) {
             DeformControls.TwistAxisZ ? geometry.vertices[i].z : 0
         );
         
-        Cube.scale.set(DeformControls.ScaleX, DeformControls.ScaleY, DeformControls.ScaleZ);
+        Mesh.scale.set(DeformControls.ScaleX, DeformControls.ScaleY, DeformControls.ScaleZ);
         // console.log(direction, (position / DeformControls.TwistAmount), position, DeformControls.TwistAmount);
         quaternion.setFromAxisAngle(
             direction, 
