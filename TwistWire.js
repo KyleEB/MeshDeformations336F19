@@ -5,13 +5,7 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 let camera, scene, renderer, gui;
 let geometry, Mesh;
 
-// let geometries = {
-//     Cube: new THREE.BoxGeometry(20, 20, 20, 20, 20, 20),
-//     Sphere: new THREE.SphereGeometry(10, 15, 15)
-// }
-
 let DeformControls = {
-    // Geometry: 'Cube',
     TwistAmount: 1,
     TwistAxisX: false,
     TwistAxisY: false,
@@ -61,7 +55,11 @@ function init() {
     var ambientLight = new THREE.AmbientLight(0x111111);
     scene.add(ambientLight);
     
-    geometry = new THREE.BoxGeometry(20, 20, 20, 20, 20, 20); 
+    // Swap out geometries to play with them
+    geometry = new THREE.BoxGeometry(20, 20, 20, 20, 20, 20);
+    // geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
+    // geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 );
+    // geometry = new THREE.SphereGeometry( 5, 60, 60 );
     const material = new THREE.MeshNormalMaterial({ wireframe: true }); 
     // const material = new THREE.MeshNormalMaterial({ color: 0x001133 }); 
     Mesh = new THREE.Mesh(geometry, material); 

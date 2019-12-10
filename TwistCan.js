@@ -66,13 +66,21 @@ function GUISetup() {
     folder.add(DeformControls, 'WireFrame', false);
     folder.add(DeformControls, 'Reset', false);
 }
-
+/**
+ * Animates until scaled below 0.25 of its original size the y-axis
+ * twisting the object as it is scaled
+ *  
+ */
 function animate() {
     DeformControls.ScaleY > 0.25 ? (DeformControls.ScaleY-=0.01, twistObj( geometry )) : null;
     requestAnimationFrame( animate );
     renderer.render( scene, camera );
 }
 
+/**
+ * Take in a geometry and slowly decements the twist amount to simulate a crushing motion. Using a quaternion, it rotates the vertices while the mesh is scaled 
+ * @param {Geometry} geometry 
+ */
 function twistObj(geometry) {
     const quaternion = new THREE.Quaternion();
     let direction = 0;
