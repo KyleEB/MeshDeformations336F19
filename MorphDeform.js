@@ -4,7 +4,7 @@ import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
-var  gui, controls, camera, scene, renderer;
+var gui, controls, camera, scene, renderer;
 
 var planeMesh, sphereMesh;
 
@@ -125,10 +125,11 @@ function GUISetup() {
 var degrees = 0;
 
 function render() {
-    if(DeformControls.Animate){ //essentially the ball squishes by the how close it is to the plane
-                                //this is not accurate by any means, but it looks decent
-                                //really this is all a visual trick as we morph between two scaled versions of the sphere
-                                //that are stored by the morph attributes
+    //essentially the ball squishes by the how close it is to the plane
+    //this is not accurate by any means, but it looks decent
+    //really this is all a visual trick as we morph between two scaled versions of the sphere
+    //that are stored by the morph attributes
+    if(DeformControls.Animate){ 
         let distance = sphereMesh.position.y - planeMesh.position.y;
         let yCoord = Math.sin(toRad(degrees));
         degrees = (degrees + 1) % 180;
