@@ -8,7 +8,7 @@ var gui, scene, camera, renderer, controls, armMesh, bones, skeletonHelper;
 var fingerMeshes;
 var skeletonHelpers = [];
 
-var state = { //animation state controller
+var DeformControls = { //animation controller
 	animateBonesX: false,
 	animateBonesY: false,
 	animateBonesZ: false,
@@ -157,25 +157,25 @@ function GUISetup() {
 	gui = new GUI();
 	var folder = gui.addFolder("S-Mesh Animation Controls");
 
-	folder.add(state, "animateBonesX");
+	folder.add(DeformControls, "animateBonesX");
 	folder.__controllers[0].name("Animate Bones X");
 
-	folder.add(state, "animateBonesY");
+	folder.add(DeformControls, "animateBonesY");
 	folder.__controllers[1].name("Animate Bones Y");
 
-	folder.add(state, "animateBonesZ");
+	folder.add(DeformControls, "animateBonesZ");
 	folder.__controllers[2].name("Animate Bones Z");
 
-	folder.add(state, "closeHand");
+	folder.add(DeformControls, "closeHand");
 	folder.__controllers[3].name("Close Hand");
 
-	folder.add(state, "rotationFactor", 1, 10);
+	folder.add(DeformControls, "rotationFactor", 1, 10);
 	folder.__controllers[4].name("Rotate by Factor");
 
 	folder.add(armMesh, "pose");
 	folder.__controllers[5].name("Reset S-Mesh");
 
-	folder.add(state, "showBones");
+	folder.add(DeformControls, "showBones");
 	folder.__controllers[6].name("Show Bones");
 
 }
@@ -249,19 +249,19 @@ function render() {
 
 	//This area handles animation controls
 	//so we can see the effects that skinning has on mesh deformations
-	if (state.animateBonesX || state.animateBonesY || state.animateBonesZ) {
+	if (DeformControls.animateBonesX || DeformControls.animateBonesY || DeformControls.animateBonesZ) {
 		for (let i = 0; i < armMesh.skeleton.bones.length; i++) {
-			var rotateBy = Math.sin(toRad(degrees)) * state.rotationFactor / armMesh.skeleton.bones.length;
+			var rotateBy = Math.sin(toRad(degrees)) * DeformControls.rotationFactor / armMesh.skeleton.bones.length;
 			if(rotateBy > 0){
-				if(state.animateBonesX){
+				if(DeformControls.animateBonesX){
 					armMesh.skeleton.bones[i].rotation.x = rotateBy;
 				}
 
-				if(state.animateBonesY){
+				if(DeformControls.animateBonesY){
 					armMesh.skeleton.bones[i].rotation.y = rotateBy;
 				}
 
-				if(state.animateBonesZ){
+				if(DeformControls.animateBonesZ){
 					armMesh.skeleton.bones[i].rotation.z = rotateBy;
 				}
 			}
@@ -269,7 +269,7 @@ function render() {
 	}
 
 	//This area particularly controls the closing/opening hand animation
-	if(state.closeHand){
+	if(DeformControls.closeHand){
 		for(let i = 0; i < fingerMeshes.length; i++){
 			for(let j = 0; j < fingerMeshes[i].skeleton.bones.length; j++){
 				let rotateX = Math.sin(toRad(degrees)) / 2;
@@ -286,7 +286,7 @@ function render() {
 
 	//This lets us toggle the visibility of the bones helper
 	for(let i = 0; i < skeletonHelpers.length; i++){
-		skeletonHelpers[i].visible = state.showBones;
+		skeletonHelpers[i].visible = DeformControls.showBones;
 	}
 	renderer.render(scene, camera);
 }
