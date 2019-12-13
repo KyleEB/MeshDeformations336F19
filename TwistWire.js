@@ -2,9 +2,11 @@ import * as THREE from 'https://threejs.org/build/three.module.js';
 import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
+// Global variables
 let camera, scene, renderer, gui;
-let geometry, Mesh;
+let geometry, Mesh, material;
 
+// Scene controls
 let DeformControls = {
     TwistAmount: 1,
     TwistAxisX: false,
@@ -22,6 +24,7 @@ let DeformControls = {
 init();
 animate();
 
+// Camera setup
 function OrbitControlsSetup() {
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -42,6 +45,7 @@ function OrbitControlsSetup() {
     }, false);
 }
 
+// Initialize the scene
 function init() {
 
     OrbitControlsSetup();
@@ -60,8 +64,8 @@ function init() {
     // geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
     // geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 );
     // geometry = new THREE.SphereGeometry( 5, 60, 60 );
-    const material = new THREE.MeshNormalMaterial({ wireframe: true }); 
-    // const material = new THREE.MeshNormalMaterial({ color: 0x001133 }); 
+    material = new THREE.MeshNormalMaterial({ wireframe: true }); 
+    // material = new THREE.MeshNormalMaterial({ color: 0x001133 }); 
     Mesh = new THREE.Mesh(geometry, material); 
     
     scene.add(Mesh);
@@ -69,6 +73,7 @@ function init() {
     GUISetup();
 }
 
+// Setup scene controls
 function GUISetup() {
     gui = new GUI();
     var folder = gui.addFolder("Deform Controls");
@@ -87,40 +92,45 @@ function GUISetup() {
 }
 
 function animate() {
+    // Twist the geometry
     twistObj( geometry );
     requestAnimationFrame( animate );
     renderer.render( scene, camera );
 }
 
+/**
+ * Twists the specified geometry in a specified direction and about an axis
+ * @param {Geometry} geometry 
+ */
 function twistObj(geometry) {
     const quaternion = new THREE.Quaternion();
     let position = 0; 
     let direction = 0;
+    Mesh.scale.set(DeformControls.ScaleX, DeformControls.ScaleY, DeformControls.ScaleZ);
 
     for (let i = 0; i < geometry.vertices.length; i++) {
 
+        // Direction to spin in
         direction = new THREE.Vector3(
             DeformControls.TwistDirectionX ? 1 : 0,
             DeformControls.TwistDirectionY ? 1 : 0, 
             DeformControls.TwistDirectionZ ? 1 : 0
         );
-        
+        // Axis to spin around with respect to the vertex's position
         position = new THREE.Vector3(
             DeformControls.TwistAxisX ? geometry.vertices[i].x : 0,
             DeformControls.TwistAxisY ? geometry.vertices[i].y : 0,
             DeformControls.TwistAxisZ ? geometry.vertices[i].z : 0
         );
-        
-        Mesh.scale.set(DeformControls.ScaleX, DeformControls.ScaleY, DeformControls.ScaleZ);
-        i % 10 == 0 ? -DeformControls.TwistAmount : null;
+        // And set the angle of rotation with respect to the vertex's position
         quaternion.setFromAxisAngle(
             direction, 
             (Math.PI / 180) * ((position.x ? position.x : position.y ? position.y : position.z ? position.z : 0) / DeformControls.TwistAmount)
         );
-
+        // Apply the rotation to the vertex
         geometry.vertices[i].applyQuaternion(quaternion);
     }
 
-    // tells Three.js to re-render this mesh
+    // Update the geometries vertices
     geometry.verticesNeedUpdate = true;
 }

@@ -2,10 +2,12 @@ import * as THREE from 'https://threejs.org/build/three.module.js';
 import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
+// Global variables
 let camera, scene, renderer, gui;
 let geometry, material, Mesh, texture;
 let twistAmount = 10;
 
+// Scene controls
 let DeformControls = {
     Crush: false,
     ScaleY: 1,
@@ -16,6 +18,7 @@ let DeformControls = {
 init();
 animate();
 
+// Camera setup
 function OrbitControlsSetup() {
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -36,6 +39,7 @@ function OrbitControlsSetup() {
     }, false);
 }
 
+// Initialize the scene
 function init() {
 
     OrbitControlsSetup();
@@ -59,6 +63,7 @@ function init() {
     GUISetup();
 }
 
+// Setup for the scene controls
 function GUISetup() {
     gui = new GUI();
     var folder = gui.addFolder("Deform Controls");
@@ -66,37 +71,42 @@ function GUISetup() {
     folder.add(DeformControls, 'Reset', false);
 }
 /**
- * Animates until scaled below 0.25 of its original size the y-axis
- * twisting the object as it is scaled
- *  
+ * Animates until scaled below 0.25 of its original size. The object twists about its y-axis
+ * as it is scaled down the y-axis
  */
 function animate() {
+    // If the GUI control for crush is selected
     if(DeformControls.Crush)
-    DeformControls.ScaleY > 0.25 ? (DeformControls.ScaleY-=0.01, twistObj( geometry )) : null;
+        // And object is above 0.25 of its original size
+        // Then reduce scale by 0.01 and twistObj
+        DeformControls.ScaleY > 0.25 ? (DeformControls.ScaleY-=0.01, twistObj( geometry )) : null;
     requestAnimationFrame( animate );
     renderer.render( scene, camera );
 }
 
 /**
- * Take in a geometry and slowly decements the twist amount to simulate a crushing motion. Using a quaternion, it rotates the vertices while the mesh is scaled 
- * @param {Geometry} geometry 
+ * Take in a geometry and slowly decements the twist amount to simulate a crushing motion. Using a quaternion, it rotates the vertices while the   * mesh is scaled down the y-axis.
+ * @param {Geometry} geometry The geometry to twist
  */
 function twistObj(geometry) {
     const quaternion = new THREE.Quaternion();
     let direction = 0;
-    twistAmount -= 0.1;
+    twistAmount -= 0.1; // Decrement to speed up the twist
+    Mesh.scale.set(1, DeformControls.ScaleY, 1); // Reduce the scale of the object
 
+    // For each vertex in the geometry
     for (let i = 0; i < geometry.vertices.length; i++) {
 
+        // Take the direction of y-axis
         direction = new THREE.Vector3(0,1,0);
-        Mesh.scale.set(1, DeformControls.ScaleY, 1);
+        // And set the angle of rotation with respect to the vertex's position
         quaternion.setFromAxisAngle(
             direction, 
             (Math.PI / 180) * (geometry.vertices[i].y / twistAmount)
         );
-
+        // Apply the rotation to the vertex
         geometry.vertices[i].applyQuaternion(quaternion);
     }
-    // tells Three.js to re-render this mesh
+    // Update the geometries vertices
     geometry.verticesNeedUpdate = true;
 }
