@@ -4,7 +4,7 @@ import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
-var  gui, controls, camera, scene, renderer;
+var gui, controls, camera, scene, renderer;
 
 var planeMesh, sphereMesh;
 
@@ -17,7 +17,7 @@ InitScene();
 GUISetup();
 render();
 
-function OrbitControlsSetup() {
+function OrbitControlsSetup() {//general camera and renderer setup
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200);
 	camera.position.set(0,1,5);
@@ -41,7 +41,7 @@ function OrbitControlsSetup() {
 	}, false);
 }
 
-function InitScene() {
+function InitScene() {//create a scene with a sphere buffer geometry and lighting
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x888888);
@@ -60,23 +60,23 @@ function InitScene() {
 
     var sphereMaterial = new THREE.MeshPhongMaterial({
         color: 0xff0000,
-        morphTargets: true
+        morphTargets: true //need morphtargets to be true so we can add morph targets to the object
     });
 
     sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    sphereMesh.castShadow = true;
+    sphereMesh.castShadow = true; //adding shadows for visual clarity, not really needed
 
     var sphereLight = new THREE.PointLight(0xfffff, 1);
-    sphereLight.castShadow = true;
+    sphereLight.castShadow = true;//adding shadows for visual clarity, not really needed
 
     sphereLight.position.set(2,10,0);
     scene.add(sphereLight);
 
     sphereMesh.position.set(0, 1, 0);
-    sphereMesh.scale.set(0.10,0.10,0.10);
+    sphereMesh.scale.set(0.10,0.10,0.10); //shrinking the sphere down so it fits nicely
 
     var planeGeometry = new THREE.PlaneBufferGeometry(5,5,32);
-    planeGeometry.rotateX(toRad(-90));
+    planeGeometry.rotateX(toRad(-90)); //make the plane look like a floor
     var planeMaterial = new THREE.MeshPhongMaterial({
         color: 0x555555,
         flatShading: false,
@@ -93,23 +93,27 @@ function InitScene() {
 function MakeGeometryWithMorphs(geometry) {
     
     
-    geometry.morphAttributes.position = [];
+    geometry.morphAttributes.position = []; //here we set the morph attributes to an empty array
+                                            //such that we can add to them later
     
     var positions = geometry.attributes.position.array; // original positions of the geometries vertices
     
     var squishPositions = []; //target array for making the sphere into a disc or a "squished sphere"
 
-    var vertex = new THREE.Vector3();
+    var vertex = new THREE.Vector3(); //stores a given vertex position so we can manipulate it easier
    
     for (var i = 0; i < positions.length; i += 3) {
-        var x = positions[i];
+        var x = positions[i]; //grab xyz from the positions array as they are bunched in three's
         var y = positions[i + 1];
         var z = positions[i + 2];
         
-        vertex.set(x * 2, y / 4, z * 2);
-        vertex.toArray(squishPositions, squishPositions.length);
+        vertex.set(x * 2, y / 4, z * 2); //this gives the effect of the ball squishing and flatining
+                                        //and also keeps its volume somewhat accurate
+        vertex.toArray(squishPositions, squishPositions.length);//pass this vertex back into the array as xyz
     }
 
+    //finally we push the newly formed morph vertices onto the first morphAttribute position
+    //as we can have multiple morphAttributes per object
     geometry.morphAttributes.position[0] = new THREE.Float32BufferAttribute(squishPositions, 3);
 }
 
@@ -121,7 +125,11 @@ function GUISetup() {
 var degrees = 0;
 
 function render() {
-    if(DeformControls.Animate){
+    //essentially the ball squishes by the how close it is to the plane
+    //this is not accurate by any means, but it looks decent
+    //really this is all a visual trick as we morph between two scaled versions of the sphere
+    //that are stored by the morph attributes
+    if(DeformControls.Animate){ 
         let distance = sphereMesh.position.y - planeMesh.position.y;
         let yCoord = Math.sin(toRad(degrees));
         degrees = (degrees + 1) % 180;
